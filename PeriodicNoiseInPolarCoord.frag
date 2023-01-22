@@ -26,6 +26,10 @@ uint uhash11(uint n){
     return n * 0x456789abu;
 }
 
+/**
+ * 周期化関数
+ * x, yのフラグメント情報に対して
+ */
 float gtable2(vec2 lattice, vec2 p){
     uvec2 n = floatBitsToUint(lattice);
     uint ind = (uhash11(uhash11(n.x) + n.y) >> 29);
@@ -96,29 +100,43 @@ float warp21(vec2 p, float g){
     return val;
 }
 
+/**
+ * ブレンディング関数
+ * 2色色をセットしておき、mix関数で色空間情報を補間している
+ * @param {float} a フラグメントにおける乱数値
+ * @param {float} b フラグメントにおける乱数値
+ * @return {vec3} フラグメントにおける色空間情報
+ */
 vec3 blend(float a, float b){
     float time = abs(mod(0.1 * u_time, 2.0) - 1.0);
     vec3[2] col2 = vec3[](
         vec3(a, a, 1),
         vec3(0, b, b)
     );
-    return channel == 0 ? mix(col2[0], col2[1], time) :
-    mix(col2[0], col2[1], smoothstep(0.5 - 0.5 * time, 0.5 + 0.5 * time,
-    b / (a + b)));
+    // return mix(col2[0], col2[1], time);
+    return mix(col2[0], col2[1], smoothstep(0.5 - 0.5 * time, 0.5 + 0.5 * time, b / (a + b)));
 }
 
 void main(){
     vec2 pos = gl_FragCoord.xy / u_resolution.xy;
     pos = 2.0 * pos.xy - vec2(1.0);
     pos = xy2pol(pos);
-    pos = vec2(5.0 / PI, 5.0) * pos + u_time;
+    // pos = vec2(5.0 / PI, 5.0) * pos + u_time;
+    pos = vec2((5.0 / PI, 2.0) * pos.x + u_time, (5.0 / PI, 2.0) * pos.y);
 
-    // float a = warp21(pos, 1.0);
-    // float b = warp21(pos + 10.0, 1.0);
-    // float a = periodicNoise21(pos, 10.0);
-    // float b = periodicNoise21(pos + 10.0, 10.0);
-    float a = periodicNoise21(vec2(warp21(pos, 5.0)), 2.0);
-    float b = periodicNoise21(vec2(warp21(pos + 10.0, 5.0)), 2.0);
+    pos = vec2(warp21(pos, 5.0));
+    // float a = warp21(pos, 5.0);
+    // float b = warp21(pos + 10.0, 5.0);
+    // float a = periodicNoise21(pos, 2.0);
+    // float b = periodicNoise21(pos + 10.0, 2.0);
+    // pos = xy2pol(pos);
+    // float a = periodicNoise21(pos, 2.0);
+    // float b = periodicNoise21(pos, 2.0);
+    float a = periodicNoise21(vec2(warp21(pos, 5.0)), 4.0);
+    float b = periodicNoise21(vec2(warp21(pos + 10.0, 5.0)), 4.0);
+    // vec2 axy = vec2(periodicNoise21(vec2(warp21(pos, 5.0)), 2.0));
+    // vec2 bxy = vec2(periodicNoise21(vec2(warp21(pos + 10.0, 5.0)), 2.0));
+    // fragColor.rgb = vec3(a, b, 0.0);
     fragColor.rgb = blend(a, b);
 
     // pos = vec2(warp21(pos, 0.5));
