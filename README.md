@@ -1,9 +1,9 @@
 # glsl-sandbox
 ## Abstract
 GLSLを実際に試してみるリポジトリ
-## 使用技術
+## Dependencies
 GLSL(主に GLSL ES 3.0`#version 300 es`)
-### 描画
+### Rendering software
 VS Codeの拡張機能[glsl-canvas](https://marketplace.visualstudio.com/items?itemName=circledev.glsl-canvas)を使用
 ## Purpose
 自分の好きを増やす
