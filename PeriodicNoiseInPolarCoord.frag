@@ -100,6 +100,10 @@ float warp21(vec2 p, float g){
     return val;
 }
 
+float periodicWarpNoise21(vec2 p, float strength, float period) {
+    return warp21(mod(p, period), strength);
+}
+
 /**
  * ブレンディング関数
  * 2色色をセットしておき、mix関数で色空間情報を補間している
@@ -119,29 +123,36 @@ vec3 blend(float a, float b){
 
 void main(){
     vec2 pos = gl_FragCoord.xy / u_resolution.xy;
+    // 中心に持ってってる
     pos = 2.0 * pos.xy - vec2(1.0);
+    // 極座標変換
     pos = xy2pol(pos);
     // pos = vec2(5.0 / PI, 5.0) * pos + u_time;
-    pos = vec2((5.0 / PI, 2.0) * pos.x + u_time, (5.0 / PI, 2.0) * pos.y);
+    pos = vec2((5.0 / PI, 2.0) * pos.x + u_time * 1.0, (5.0 / PI, 2.0) * pos.y);
 
-    pos = vec2(warp21(pos, 5.0));
-    // float a = warp21(pos, 5.0);
-    // float b = warp21(pos + 10.0, 5.0);
+    // 継ぎ目ありだけど動いてる
+    // 下の１行いれると色薄くなるけど模様強くなる
+    // pos = vec2(warp21(pos, 5.0));
+    // float a = periodicNoise21(vec2(warp21(pos, 5.0)), 4.0);
+    // float b = periodicNoise21(vec2(warp21(pos + 10.0, 5.0)), 4.0);
+    // 時間変化なし
     // float a = periodicNoise21(pos, 2.0);
     // float b = periodicNoise21(pos + 10.0, 2.0);
-    // pos = xy2pol(pos);
-    // float a = periodicNoise21(pos, 2.0);
-    // float b = periodicNoise21(pos, 2.0);
-    float a = periodicNoise21(vec2(warp21(pos, 5.0)), 4.0);
-    float b = periodicNoise21(vec2(warp21(pos + 10.0, 5.0)), 4.0);
-    // vec2 axy = vec2(periodicNoise21(vec2(warp21(pos, 5.0)), 2.0));
-    // vec2 bxy = vec2(periodicNoise21(vec2(warp21(pos + 10.0, 5.0)), 2.0));
-    // fragColor.rgb = vec3(a, b, 0.0);
-    fragColor.rgb = blend(a, b);
 
-    // pos = vec2(warp21(pos, 0.5));
-    // pos = vec2(periodicNoise21(pos, 10.0));
-    // fragColor = vec4(warp21(pos, 0.5));
-    // fragColor = vec4(periodicNoise21(pos, 10.0));
+    // 周期性は表れてるけど意図した周期性じゃない
+    // float a = periodicWarpNoise21(pos, 5.0);
+    // float b = periodicWarpNoise21(pos + 10.0, 5.0);
+
+    // きたああああああああああああああああああああああああ！！！
+    // けど時間変化してない、と思ったらしてた！！！
+    float a = periodicWarpNoise21(pos, 7.0, PI);
+    float b = periodicWarpNoise21(pos + 10.0, 7.2, PI);
+
+    // 時間変化はするけど周期性失われた
+    // periodicWarpNoise21の中で時間変化させればうまくいきそう
+    // float a = periodicWarpNoise21(vec2(warp21(pos, 2.0)), PI);
+    // float b = periodicWarpNoise21(vec2(warp21(pos + 10.0, 2.0)), PI);
+
+    fragColor.rgb = blend(a, b);
     fragColor.a = 1.0;
 }
