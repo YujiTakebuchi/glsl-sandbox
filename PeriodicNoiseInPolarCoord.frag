@@ -101,6 +101,8 @@ float warp21(vec2 p, float g){
 }
 
 float periodicWarpNoise21(vec2 p, float strength, float period) {
+    // 収縮拡大のためにyの周期性をなくしたらx方向でアーティファクトが発生した
+    // return warp21(vec2(mod(p.x, period), p.y), strength);
     return warp21(mod(p, period), strength);
 }
 
@@ -127,8 +129,10 @@ void main(){
     pos = 2.0 * pos.xy - vec2(1.0);
     // 極座標変換
     pos = xy2pol(pos);
-    // pos = vec2(5.0 / PI, 5.0) * pos + u_time;
+    // 回転
     pos = vec2((5.0 / PI, 2.0) * pos.x + u_time * 1.0, (5.0 / PI, 2.0) * pos.y);
+    // 拡大縮小
+    // pos = vec2((5.0 / PI, 2.0) * pos.x + u_time * 1.0, (5.0 / PI, 2.0) * pos.y + u_time * 0.2);
 
     // 継ぎ目ありだけど動いてる
     // 下の１行いれると色薄くなるけど模様強くなる
@@ -148,7 +152,7 @@ void main(){
     float a = periodicWarpNoise21(pos, 7.0, PI);
     float b = periodicWarpNoise21(pos + 10.0, 7.2, PI);
 
-    // 時間変化はするけど周期性失われた
+    // 時間変化はするけど周期性失われたできたノイズに
     // periodicWarpNoise21の中で時間変化させればうまくいきそう
     // float a = periodicWarpNoise21(vec2(warp21(pos, 2.0)), PI);
     // float b = periodicWarpNoise21(vec2(warp21(pos + 10.0, 2.0)), PI);
