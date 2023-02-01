@@ -18,12 +18,54 @@ vec2 pol2xy(vec2 pol){
     return pol.y * vec2(cos(pol.x), sin(pol.x));
 }
 
+const uint UINT_MAX = 0xffffffffu;
+uvec3 k = uvec3(0x456789abu, 0x6789ab45u, 0x89ab4567u);
+uvec3 u = uvec3(1, 2, 3);
+
 uint uhash11(uint n){
     n ^= (n << 1u);
     n ^= (n >> 1u);
     n *= 0x456789abu;
     n ^= (n << 1u);
     return n * 0x456789abu;
+}
+
+uvec2 uhash22(uvec2 n){
+    n ^= (n.yx << u.xy);
+    n ^= (n.yx >> u.xy);
+    n *= k.xy;
+    n ^= (n.yx << u.xy);
+    return n * k.xy;
+}
+float hash21(vec2 p){
+    uvec2 n = floatBitsToUint(p);
+    return float(uhash22(n).x) / float(UINT_MAX);
+    //nesting approach
+    //return float(uhash11(n.x+uhash11(n.y)) / float(UINT_MAX)
+}
+
+vec2 hash22(vec2 p){
+    uvec2 n = floatBitsToUint(p);
+    return vec2(uhash22(n)) / vec2(UINT_MAX);
+}
+
+float gnoise21(vec2 p){
+    vec2 n = floor(p);
+    vec2[4] g;
+    for (int j = 0; j < 2; j ++){
+        for (int i = 0; i < 2; i++){
+            g[i+2*j] = normalize(hash22(n + vec2(i,j)) - vec2(0.5));
+        }
+    }
+    vec2 f = fract(p);
+    float[4] v;
+    for (int j = 0; j < 2; j ++){
+        for (int i = 0; i < 2; i++){
+            v[i+2*j] = dot(g[i+2*j], f - vec2(i, j));
+        }
+    }
+    f = f * f * f * (10.0 - 15.0 * f + 6.0 * f * f);
+    return 0.5 * mix(mix(v[0], v[1], f[0]), mix(v[2], v[3], f[0]), f[1]) + 0.5;
 }
 
 /**
@@ -95,7 +137,14 @@ float pnoise21(vec2 p){
 float warp21(vec2 p, float g){
     float val = 0.0;
     for (int i = 0; i < 4; i++){
-        val = pnoise21(p + g * val);
+        // 見慣れたやつ
+        // val = pnoise21(p + g * val);
+        // 砂嵐
+        // val = hash21(p + g * val);
+        // あんまりpnoiseと変わらなかった
+        // val = gnoise21(p + g * val);
+        // ぐちゃぐちゃ、色味の変化えぐぅ
+        val = pnoise21(p + g * val) + sin(u_time) * 0.2;
     }
     return val;
 }
@@ -118,6 +167,9 @@ vec3 blend(float a, float b){
     vec3[2] col2 = vec3[](
         vec3(a, a, 1),
         vec3(0, b, b)
+        // 色のカスタマイズ
+        // vec3(a, b, b),
+        // vec3(b, a, 0)
     );
     // return mix(col2[0], col2[1], time);
     return mix(col2[0], col2[1], smoothstep(0.5 - 0.5 * time, 0.5 + 0.5 * time, b / (a + b)));
@@ -130,7 +182,9 @@ void main(){
     // 極座標変換
     pos = xy2pol(pos);
     // 回転
-    pos = vec2((5.0 / PI, 2.0) * pos.x + u_time * 1.0, (5.0 / PI, 2.0) * pos.y);
+    // pos = vec2((5.0 / PI, 2.0) * pos.x + u_time * 1.0, (5.0 / PI, 2.0) * pos.y);
+    pos = vec2((5.0 / PI, 2.0) * pos.x + u_time * 1.0 + sin(u_time * 0.3) * 13.5, (5.0 / PI, 2.0) * pos.y);
+
     // 拡大縮小
     // pos = vec2((5.0 / PI, 2.0) * pos.x + u_time * 1.0, (5.0 / PI, 2.0) * pos.y + u_time * 0.2);
 
@@ -149,8 +203,11 @@ void main(){
 
     // きたああああああああああああああああああああああああ！！！
     // けど時間変化してない、と思ったらしてた！！！
-    float a = periodicWarpNoise21(pos, 7.0, PI);
-    float b = periodicWarpNoise21(pos + 10.0, 7.2, PI);
+    // float a = periodicWarpNoise21(pos, 7.0, PI);
+    // float b = periodicWarpNoise21(pos + 10.0, 7.2, PI);
+    // 模様を時間変化、単調でつまらない
+    float a = periodicWarpNoise21(pos, 7.0 + sin(u_time * 1.7) * 2.0, PI);
+    float b = periodicWarpNoise21(pos + 10.0 + sin(u_time * 1.3) * 0.3, 7.2 + sin(u_time * 0.4), PI);
 
     // 時間変化はするけど周期性失われたできたノイズに
     // periodicWarpNoise21の中で時間変化させればうまくいきそう
