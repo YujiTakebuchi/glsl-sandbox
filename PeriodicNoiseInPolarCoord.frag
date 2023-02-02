@@ -68,6 +68,31 @@ float gnoise21(vec2 p){
     return 0.5 * mix(mix(v[0], v[1], f[0]), mix(v[2], v[3], f[0]), f[1]) + 0.5;
 }
 
+float vnoise21(vec2 p){
+    vec2 n = floor(p);
+    float[4] v;
+    for (int j = 0; j < 2; j ++){
+        for (int i = 0; i < 2; i++){
+            v[i+2*j] = hash21(n + vec2(i, j));
+        }
+    }
+    vec2 f = fract(p);
+    f = f * f * f * (10.0 - 15.0 * f + 6.0 * f * f);
+    return mix(mix(v[0], v[1], f[0]), mix(v[2], v[3], f[0]), f[1]);
+}
+
+float fbm21(vec2 p, float g){
+    float val = 0.0;
+    float amp = 1.0;
+    float freq = 1.0;
+    for (int i = 0; i < 4; i++){
+        val += amp * (vnoise21(freq * p) - 0.5);
+        amp *= g;
+        freq *= 2.01;
+    }
+    return 0.5 * val + 0.5;
+}
+
 /**
  * 周期化関数
  * x, yのフラグメント情報に対して
@@ -143,8 +168,9 @@ float warp21(vec2 p, float g){
         // val = hash21(p + g * val);
         // あんまりpnoiseと変わらなかった
         // val = gnoise21(p + g * val);
+        val = fbm21(p + g * val, g);
         // ぐちゃぐちゃ、色味の変化えぐぅ
-        val = pnoise21(p + g * val) + sin(u_time) * 0.2;
+        // val = pnoise21(p + g * val) + sin(u_time) * 0.2;
     }
     return val;
 }
@@ -152,7 +178,9 @@ float warp21(vec2 p, float g){
 float periodicWarpNoise21(vec2 p, float strength, float period) {
     // 収縮拡大のためにyの周期性をなくしたらx方向でアーティファクトが発生した
     // return warp21(vec2(mod(p.x, period), p.y), strength);
-    return warp21(mod(p, period), strength);
+    // 普通のやつ
+    // return warp21(mod(p, period), strength);
+    return fbm21(mod(p, period), strength);
 }
 
 /**
