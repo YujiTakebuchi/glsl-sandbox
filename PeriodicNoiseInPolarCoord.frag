@@ -168,9 +168,10 @@ float warp21(vec2 p, float g){
         // val = hash21(p + g * val);
         // あんまりpnoiseと変わらなかった
         // val = gnoise21(p + g * val);
-        val = fbm21(p + g * val, g);
+        // fBM、ほぼ砂嵐
+        // val = fbm21(p + g * val, g);
         // ぐちゃぐちゃ、色味の変化えぐぅ
-        // val = pnoise21(p + g * val) + sin(u_time) * 0.2;
+        val = pnoise21(p + g * val) + sin(u_time) * 0.2;
     }
     return val;
 }
@@ -179,7 +180,11 @@ float periodicWarpNoise21(vec2 p, float strength, float period) {
     // 収縮拡大のためにyの周期性をなくしたらx方向でアーティファクトが発生した
     // return warp21(vec2(mod(p.x, period), p.y), strength);
     // 普通のやつ
-    // return warp21(mod(p, period), strength);
+    return warp21(mod(p, period), strength);
+}
+
+// ドメインワーピングじゃなくてfBMを使った
+float periodicFbmNoise21(vec2 p, float strength, float period) {
     return fbm21(mod(p, period), strength);
 }
 
@@ -193,11 +198,11 @@ float periodicWarpNoise21(vec2 p, float strength, float period) {
 vec3 blend(float a, float b){
     float time = abs(mod(0.1 * u_time, 2.0) - 1.0);
     vec3[2] col2 = vec3[](
-        vec3(a, a, 1),
-        vec3(0, b, b)
+        // vec3(a, a, 1),
+        // vec3(0, b, b)
         // 色のカスタマイズ
-        // vec3(a, b, b),
-        // vec3(b, a, 0)
+        vec3(a, b, b),
+        vec3(b, a, 0)
     );
     // return mix(col2[0], col2[1], time);
     return mix(col2[0], col2[1], smoothstep(0.5 - 0.5 * time, 0.5 + 0.5 * time, b / (a + b)));
@@ -209,9 +214,12 @@ void main(){
     pos = 2.0 * pos.xy - vec2(1.0);
     // 極座標変換
     pos = xy2pol(pos);
+    vec2 pos2 = pos;
     // 回転
     // pos = vec2((5.0 / PI, 2.0) * pos.x + u_time * 1.0, (5.0 / PI, 2.0) * pos.y);
-    pos = vec2((5.0 / PI, 2.0) * pos.x + u_time * 1.0 + sin(u_time * 0.3) * 13.5, (5.0 / PI, 2.0) * pos.y);
+    // 逆回転を加える
+    pos = vec2((5.0 / PI, 2.0) * pos.x + u_time * 1.0, (5.0 / PI, 2.0) * pos.y);
+    pos2 = vec2((5.0 / PI, 2.0) * pos.x + u_time * 1.0 + sin(u_time * 0.3) * 13.5, (5.0 / PI, 2.0) * pos.y);
 
     // 拡大縮小
     // pos = vec2((5.0 / PI, 2.0) * pos.x + u_time * 1.0, (5.0 / PI, 2.0) * pos.y + u_time * 0.2);
@@ -234,8 +242,18 @@ void main(){
     // float a = periodicWarpNoise21(pos, 7.0, PI);
     // float b = periodicWarpNoise21(pos + 10.0, 7.2, PI);
     // 模様を時間変化、単調でつまらない
-    float a = periodicWarpNoise21(pos, 7.0 + sin(u_time * 1.7) * 2.0, PI);
-    float b = periodicWarpNoise21(pos + 10.0 + sin(u_time * 1.3) * 0.3, 7.2 + sin(u_time * 0.4), PI);
+    // float a = periodicWarpNoise21(pos, 7.0 + sin(u_time * 1.7) * 2.0, PI);
+    // float b = periodicWarpNoise21(pos + 10.0 + sin(u_time * 1.3) * 0.3, 7.2 + sin(u_time * 0.4), PI);
+    // なんか不思議な感じ
+    // float a = periodicWarpNoise21(pos, 1.0 + sin(u_time * 1.7) * 3.5, 3.0/PI);
+    // float b = periodicWarpNoise21(pos2 + 10.0 + sin(u_time * 1.3) * 0.3, 0.2 + sin(u_time * 0.4) * 0
+
+    // 使う極座標を二つ用意して回転の仕方を変えた
+    // float a = periodicWarpNoise21(pos, 7.0 + sin(u_time * 1.7) * 2.0, PI);
+    // float b = periodicFbmNoise21(pos2 + sin(u_time * 1.3) * 0.3, 0.2 + sin(u_time * 0.4) * 3.3, PI);
+
+    float a = periodicFbmNoise21(pos, 1.0 + sin(u_time * 1.7) * 1.5, PI);
+    float b = periodicFbmNoise21(pos2 + sin(u_time * 1.3) * 0.3, 0.2 + sin(u_time * 0.4) * 3.3, PI);
 
     // 時間変化はするけど周期性失われたできたノイズに
     // periodicWarpNoise21の中で時間変化させればうまくいきそう
