@@ -125,15 +125,15 @@ void main(){
     vec2 pos = gl_FragCoord.xy / u_resolution.xy;
     // 中心に持ってってる
     // pos = 2.0 * pos.xy - vec2(1.0);
-    float orbitR = sin(u_time) * 0.1;
-    float orbitSpeed = 9.5;
+    float orbitR = sin(u_time) * 0.09;
+    float orbitSpeed = 17.5;
     pos.x = 2.0 * pos.x + sin(u_time * orbitSpeed) * orbitR - 1.0;
     pos.y = 2.0 * pos.y + cos(u_time * orbitSpeed) * orbitR - 1.0;
     // 極座標変換
     pos = xy2pol(pos);
     // 中心に向かう、離れる動き
     // pos = vec2((5.0 / PI, 0.0) * pos.x + u_time * 1.0, (5.0 / PI, 2.0) * pos.y + u_time * -0.2);
-    pos = vec2((5.0 / PI, 0.0) * pos.x + u_time * 1.0, (5.0 / PI, 2.0) * (pos.y < sin(u_time * 29.0) * 0.2 ? 0.0 : pos.y) + abs(sin(u_time)) * -0.2);
+    pos = vec2((5.0 / PI, 0.0) * pos.x + u_time * 1.0, (5.0 / PI, 2.0) * (pos.y < sin(u_time * 19.0) * 0.2 ? 0.0 : pos.y) + abs(sin(u_time)) * -0.2);
     
     // pos = pos.y < 0.1 ? vec2(0.0) : pos;
 
