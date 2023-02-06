@@ -124,29 +124,19 @@ vec3 blend(float a, float b){
 void main(){
     vec2 pos = gl_FragCoord.xy / u_resolution.xy;
     // 中心に持ってってる
-    pos = 2.0 * pos.xy - vec2(1.0);
+    // pos = 2.0 * pos.xy - vec2(1.0);
+    float orbitR = sin(u_time) * 0.1;
+    float orbitSpeed = 9.5;
+    pos.x = 2.0 * pos.x + sin(u_time * orbitSpeed) * orbitR - 1.0;
+    pos.y = 2.0 * pos.y + cos(u_time * orbitSpeed) * orbitR - 1.0;
     // 極座標変換
     pos = xy2pol(pos);
-    // 普通の回転
-    // pos = vec2(5.0 / PI, 5.0) * pos + u_time;
     // 中心に向かう、離れる動き
-    pos = vec2((5.0 / PI, 0.0) * pos.x + u_time * 1.0, (5.0 / PI, 2.0) * pos.y + u_time * -0.2);
+    // pos = vec2((5.0 / PI, 0.0) * pos.x + u_time * 1.0, (5.0 / PI, 2.0) * pos.y + u_time * -0.2);
+    pos = vec2((5.0 / PI, 0.0) * pos.x + u_time * 1.0, (5.0 / PI, 2.0) * (pos.y < sin(u_time * 29.0) * 0.2 ? 0.0 : pos.y) + abs(sin(u_time)) * -0.2);
+    
+    // pos = pos.y < 0.1 ? vec2(0.0) : pos;
 
-    // 継ぎ目ありだけど動いてる
-    // 下の１行いれると色薄くなるけど模様強くなる
-    // pos = vec2(warp21(pos, 5.0));
-    // float a = periodicNoise21(vec2(warp21(pos, 5.0)), 4.0);
-    // float b = periodicNoise21(vec2(warp21(pos + 10.0, 5.0)), 4.0);
-    // 時間変化なし
-    // float a = periodicNoise21(pos, 2.0);
-    // float b = periodicNoise21(pos + 10.0, 2.0);
-
-    // 周期性は表れてるけど意図した周期性じゃない
-    // float a = periodicWarpNoise21(pos, 5.0);
-    // float b = periodicWarpNoise21(pos + 10.0, 5.0);
-
-    // きたああああああああああああああああああああああああ！！！
-    // けど時間変化してない、と思ったらしてた！！！
     float a = periodicWarpNoise21(pos, .0, PI * 1.0);
     float b = periodicWarpNoise21(pos + 10.0, 7.2, PI);
 
@@ -159,6 +149,7 @@ void main(){
     // fragColor.rgb = vec3(a);
     // fragColor.rgb = vec3(b);
 
-    fragColor.rgb = blend(a, b);
+    float darkness = 0.25;
+    fragColor.rgb = pos.y < 0.1 ? blend(a * darkness, b * darkness) : blend(a, b);
     fragColor.a = 1.0;
 }
