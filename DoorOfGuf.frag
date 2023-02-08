@@ -135,19 +135,11 @@ void main(){
     // pos = vec2((5.0 / PI, 0.0) * pos.x + u_time * 1.0, (5.0 / PI, 2.0) * pos.y + u_time * -0.2);
     pos = vec2((5.0 / PI, 0.0) * pos.x + u_time * 1.0, (5.0 / PI, 2.0) * (pos.y < sin(u_time * 19.0) * 0.2 ? 0.0 : pos.y) + abs(sin(u_time)) * -0.2);
     
+    // 中心から広がる動きをさせるとどんどん中心が侵食される
     // pos = pos.y < 0.1 ? vec2(0.0) : pos;
 
     float a = periodicWarpNoise21(pos, .0, PI * 1.0);
     float b = periodicWarpNoise21(pos + 10.0, 7.2, PI);
-
-    // 時間変化はするけど周期性失われたできたノイズに
-    // periodicWarpNoise21の中で時間変化させればうまくいきそう
-    // float a = periodicWarpNoise21(vec2(warp21(pos, 2.0)), PI);
-    // float b = periodicWarpNoise21(vec2(warp21(pos + 10.0, 2.0)), PI);
-
-    // デバッグ用
-    // fragColor.rgb = vec3(a);
-    // fragColor.rgb = vec3(b);
 
     float darkness = 0.25;
     fragColor.rgb = pos.y < 0.1 ? blend(a * darkness, b * darkness) : blend(a, b);
