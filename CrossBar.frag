@@ -35,7 +35,16 @@ float moveYBlend(vec2 p) {
     return dynaY;
 }
 
-vec3 blend(float a, float b){
+float blend(float a, float b){
+    float time = abs(mod(0.1 * u_time, 2.0) - 1.0);
+    float[2] col2 = float[](
+        a,
+        b
+    );
+    return mix(col2[0], col2[1], .5);
+}
+
+vec3 blendRGB(float a, float b){
     float time = abs(mod(0.1 * u_time, 2.0) - 1.0);
     vec3[2] col2 = vec3[](
         vec3(a, a, a),
@@ -48,7 +57,7 @@ vec3 blend(float a, float b){
 }
 
 void main() {
-    vec2 pos = (gl_FragCoord.xy / u_resolution.xy) * 10.0;
+    vec2 pos = ((gl_FragCoord.xy / u_resolution.xy) - 0.5) * 10.0;
     // 簡単にやるなら
     // float crossBar = move(pos);
     // 絶対に足したる！でけたっぽい
@@ -57,7 +66,9 @@ void main() {
     // blend使って合成させようとしたけどどっちも0の時しか黒くならない
     float a = moveXBlend(pos);
     float b = moveYBlend(pos);
-    vec3 crossBar = blend(a, b);
+    // blend1次元化チャレンジ
+    vec3 crossBar = vec3(blend(a, b));
+    // vec3 crossBar = blendRGB(a, b);
     fragColor.rgb = vec3(1.0);
     // fragColor.rgb = vec3(crossBar);
     fragColor.rgb = crossBar;
