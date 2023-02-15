@@ -68,6 +68,13 @@ vec3 blendVec3(vec3 a, vec3 b){
     return mix(col2[0], col2[1], .5);
 }
 
+vec3 chromaKeyBlend(vec3 target, vec3 chromaKey) {
+    float red = target.r == chromaKey.r ? chromaKey.r : target.r;
+    float green = target.g == chromaKey.g ? chromaKey.g : target.g;
+    float blue = target.b == chromaKey.b ? chromaKey.b : target.b;
+    return vec3(red, green, blue);
+}
+
 void main() {
     vec2 pos = ((gl_FragCoord.xy / u_resolution.xy)) - 0.5;
     // メトロノームチックな変な動きする、この2行を積めば積むほどすごい
@@ -94,8 +101,9 @@ void main() {
     // vec3 crossBar = blendRGB(a, b);
 
     // fragColor.rgb = vec3(crossBar);
-    fragColor.rgb = crossBar;
+    // fragColor.rgb = crossBar;
     // ブレンドで背景色つけようとした
     // fragColor.rgb = blendVec3(backgroundColor, crossBar);
+    fragColor.rgb = chromaKeyBlend(crossBar, backgroundColor);
     fragColor.a = 1.0;
 }
