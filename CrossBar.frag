@@ -69,7 +69,7 @@ vec3 blendVec3(vec3 a, vec3 b){
 }
 
 vec3 chromaKeyBlend(vec3 target, vec3 chromaKey, vec3 background) {
-    vec3 blended = target.r == chromaKey.r && target.g == chromaKey.g && target.b == chromaKey.b ? background : target;
+    vec3 blended = target.r == chromaKey.r && target.g == chromaKey.g && target.b == chromaKey.b ? background : blendVec3(target, background);
     return blended;
 }
 
