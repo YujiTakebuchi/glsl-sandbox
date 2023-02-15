@@ -74,7 +74,21 @@ vec3 chromaKeyBlend(vec3 target, vec3 chromaKey, vec3 background) {
 }
 
 void main() {
-    vec2 pos = ((gl_FragCoord.xy / u_resolution.xy)) - 0.5;
+    float originMv = -0.5;
+    vec2 pos = ((gl_FragCoord.xy / u_resolution.xy));
+    vec2 posClone = pos;
+    pos += originMv;
+    vec3[4] col4 = vec3[]( // ベクトルの配列
+        vec3(0.0, 0.0, 1.0),
+        vec3(0.0, 1.0, 1.0),
+        vec3(0.0, 1.0, 0.0),
+        vec3(1.0, 1.0, 0.0)
+    );
+    float n = 4.0;
+    posClone *= n;
+    posClone = floor(posClone) + step(0.5, fract(posClone));
+    posClone /= n;
+    vec3 col = mix(mix(col4[0], col4[1], posClone.x), mix(col4[2], col4[3], posClone.x), posClone.y);
     // メトロノームチックな変な動きする、この2行を積めば積むほどすごい
     // pos *= 
     // pos.x += sin(u_time) * .5;
@@ -90,7 +104,8 @@ void main() {
     float a = moveXBlend(pos);
     float b = moveYBlend(pos);
     
-    vec3 backgroundColor = vec3(1.0, 1.0, 0.0);
+    // vec3 backgroundColor = vec3(1.0, 1.0, 0.0);
+    vec3 backgroundColor = col;
 
     // blend1次元化チャレンジ
     // vec3 crossBar = vec3(blend(a, b));
