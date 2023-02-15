@@ -65,8 +65,8 @@ void main() {
     // pos *= 
     // pos.x += sin(u_time) * .5;
     pos *= 5.0;
-    pos.x += sin(u_time * 1.31) * 2.5;
-    pos.y += cos(u_time * 1.53) * 2.5;
+    pos.x += sin(u_time) * 2.5;
+    pos.y += cos(u_time) * 2.5;
     // 簡単にやるなら
     // float crossBar = move(pos);
     // 絶対に足したる！でけたっぽい
@@ -79,7 +79,8 @@ void main() {
     fragColor.rgb = vec3(1.0, 1.0, 0.0);
     // blend1次元化チャレンジ
     // vec3 crossBar = vec3(blend(a, b));
-    vec3 crossBar = vec3(float(uint(a) ^ uint(b)));
+    // 論理式でボーダーを重ねた
+    vec3 crossBar = vec3(float(uint(a) & uint(b)));
     // vec3 crossBar = blendRGB(a, b);
 
     // fragColor.rgb = vec3(crossBar);
