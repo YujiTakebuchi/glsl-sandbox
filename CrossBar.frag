@@ -59,6 +59,15 @@ vec3 blendRGB(float a, float b){
     // return mix(col2[0], col2[1], smoothstep(0.5 - 0.5 * time, 0.5 + 0.5 * time, b / (a + b)));
 }
 
+vec3 blendVec3(vec3 a, vec3 b){
+    float time = abs(mod(0.1 * u_time, 2.0) - 1.0);
+    vec3[2] col2 = vec3[](
+        a,
+        b
+    );
+    return mix(col2[0], col2[1], .5);
+}
+
 void main() {
     vec2 pos = ((gl_FragCoord.xy / u_resolution.xy)) - 0.5;
     // メトロノームチックな変な動きする、この2行を積めば積むほどすごい
@@ -76,7 +85,8 @@ void main() {
     float a = moveXBlend(pos);
     float b = moveYBlend(pos);
     
-    fragColor.rgb = vec3(1.0, 1.0, 0.0);
+    vec3 backgroundColor = vec3(1.0, 1.0, 0.0);
+
     // blend1次元化チャレンジ
     // vec3 crossBar = vec3(blend(a, b));
     // 論理式でボーダーを重ねた
@@ -85,5 +95,7 @@ void main() {
 
     // fragColor.rgb = vec3(crossBar);
     fragColor.rgb = crossBar;
+    // ブレンドで背景色つけようとした
+    // fragColor.rgb = blendVec3(backgroundColor, crossBar);
     fragColor.a = 1.0;
 }
