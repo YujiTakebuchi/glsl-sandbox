@@ -68,11 +68,9 @@ vec3 blendVec3(vec3 a, vec3 b){
     return mix(col2[0], col2[1], .5);
 }
 
-vec3 chromaKeyBlend(vec3 target, vec3 chromaKey) {
-    float red = target.r == chromaKey.r ? chromaKey.r : target.r;
-    float green = target.g == chromaKey.g ? chromaKey.g : target.g;
-    float blue = target.b == chromaKey.b ? chromaKey.b : target.b;
-    return vec3(red, green, blue);
+vec3 chromaKeyBlend(vec3 target, vec3 chromaKey, vec3 background) {
+    vec3 blended = target.r == chromaKey.r && target.g == chromaKey.g && target.b == chromaKey.b ? background : target;
+    return blended;
 }
 
 void main() {
@@ -104,6 +102,6 @@ void main() {
     // fragColor.rgb = crossBar;
     // ブレンドで背景色つけようとした
     // fragColor.rgb = blendVec3(backgroundColor, crossBar);
-    fragColor.rgb = chromaKeyBlend(crossBar, backgroundColor);
+    fragColor.rgb = chromaKeyBlend(crossBar, vec3(1.0), backgroundColor);
     fragColor.a = 1.0;
 }
