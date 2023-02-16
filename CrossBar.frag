@@ -100,7 +100,7 @@ void main() {
     // pos *= 
     // pos.x += sin(u_time) * .5;
     pos *= 5.0;
-    pos.x += sin(u_time) * 2.5;
+    pos.x += sin(u_time * 4.0) * cos(u_time) * 2.5;
     pos.y += cos(u_time) * 2.5;
     // 簡単にやるなら
     // float crossBar = move(pos);
