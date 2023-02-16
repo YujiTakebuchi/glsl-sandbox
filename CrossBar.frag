@@ -69,7 +69,9 @@ vec3 blendVec3(vec3 a, vec3 b){
 }
 
 vec3 chromaKeyBlend(vec3 target, vec3 chromaKey, vec3 background) {
-    vec3 blended = target.r == chromaKey.r && target.g == chromaKey.g && target.b == chromaKey.b ? background : blendVec3(target, background);
+    vec3 blended = target.r == chromaKey.r && target.g == chromaKey.g && target.b == chromaKey.b ? background : target;
+    // ボーダーと背景でブレンド
+    // vec3 blended = target.r == chromaKey.r && target.g == chromaKey.g && target.b == chromaKey.b ? background : blendVec3(target, background);
     return blended;
 }
 
@@ -84,9 +86,14 @@ void main() {
         vec3(0.0, 1.0, 0.0),
         vec3(1.0, 1.0, 0.0)
     );
-    float n = 4.0;
+    // 階数をかけないと四つ窓になっていい感じ
+    // posClone = floor(posClone) + step(0.5, fract(posClone));
+    float n = 6.0;
     posClone *= n;
+    // 階段関数
     posClone = floor(posClone) + step(0.5, fract(posClone));
+    // 滑らかな階段関数
+    // posClone = floor(posClone) + smoothstep(0.1, 0.9, fract(posClone));
     posClone /= n;
     vec3 col = mix(mix(col4[0], col4[1], posClone.x), mix(col4[2], col4[3], posClone.x), posClone.y);
     // メトロノームチックな変な動きする、この2行を積めば積むほどすごい
@@ -110,7 +117,11 @@ void main() {
     // blend1次元化チャレンジ
     // vec3 crossBar = vec3(blend(a, b));
     // 論理式でボーダーを重ねた
-    vec3 crossBar = vec3(float(uint(a) & uint(b)));
+    // vec3 crossBar = vec3(1.0, b, float(uint(a) & uint(b)));
+    // ブレンドかかっていい感じ
+    // vec3 crossBar = vec3(1.0, b, float(uint(a) ^ uint(b)));
+    // ボーダーをクロマキー
+    vec3 crossBar = vec3(float(uint(a) | uint(b)), 1.0, float(uint(a) ^ uint(b)));
     // vec3 crossBar = blendRGB(a, b);
 
     // fragColor.rgb = vec3(crossBar);
