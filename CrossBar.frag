@@ -104,7 +104,7 @@ void main() {
     );
 
     // 極座標変換
-    // pos = xy2pol(pos);
+    pos = xy2pol(pos);
 
 
     // 階数をかけないと四つ窓になっていい感じ
