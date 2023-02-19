@@ -96,8 +96,6 @@ void main() {
     vec2 posClone = pos;
     pos += originMv;
     // pos *= 2.0 * PI;
-    // 極座標変換
-    pos = xy2pol(pos);
     vec3[4] col4 = vec3[](
         vec3(0.0, 0.0, 1.0),
         vec3(0.0, 1.0, 1.0),
@@ -105,26 +103,38 @@ void main() {
         vec3(1.0, 1.0, 0.0)
     );
 
+    // 極座標変換
+    // pos = xy2pol(pos);
+
 
     // 階数をかけないと四つ窓になっていい感じ
     // posClone = floor(posClone) + step(0.5, fract(posClone));
 
     float n = 16.0;
     posClone *= n;
+
     // 階段関数
     posClone = floor(posClone) + step(0.5, fract(posClone));
     // 滑らかな階段関数
     // float thr = 0.25 * sin(u_time);
     // posClone = floor(posClone) + smoothstep(0.1, 0.9, fract(posClone));
     // posClone = floor(posClone) + smoothstep(0.25 + thr, 0.75 - thr, fract(posClone));
+
     posClone /= n;
+    
+    // 背景の色配置
     vec3 col = mix(mix(col4[0], col4[1], posClone.x), mix(col4[2], col4[3], posClone.x), posClone.y);
+
+
     // メトロノームチックな変な動きする、この2行を積めば積むほどすごい
     // pos *= 
-    // pos.x += sin(u_time) * .5;
+    pos.x += sin(u_time) * .5;
     pos *= 5.0;
+
+    // ボーダーの座標移動
     pos.x += sin(u_time * 4.0) * cos(u_time) * 2.5;
     pos.y += cos(u_time) * 2.5;
+
     // 簡単にやるなら
     // float crossBar = move(pos);
     // 絶対に足したる！でけたっぽい
@@ -157,6 +167,7 @@ void main() {
     // ブレンドで背景色つけようとした
     // fragColor.rgb = blendVec3(backgroundColor, crossBar);
     // ボーダーをクロマキー
+    // クロマキーをかける色
     vec3 chromaKeyColor = vec3(0.0, 0.0, 0.0);
     // vec3 chromaKeyColor = vec3(1.0, 1.0, 1.0);
     // vec3 chromaKeyColor = vec3(1.0, 0.0, 0.0);
