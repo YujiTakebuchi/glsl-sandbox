@@ -176,16 +176,22 @@ float warp21(vec2 p, float g){
     return val;
 }
 
+float converter(float v){
+    return 0.5 * sin(4.0 * PI * v + u_time) + 0.5;
+}
+
 float periodicWarpNoise21(vec2 p, float strength, float period) {
     // 収縮拡大のためにyの周期性をなくしたらx方向でアーティファクトが発生した
     // return warp21(vec2(mod(p.x, period), p.y), strength);
     // 普通のやつ
-    return warp21(mod(p, period), strength);
+    // return warp21(mod(p, period), strength);
+    return converter(warp21(mod(p, period), strength));
 }
 
 // ドメインワーピングじゃなくてfBMを使った
 float periodicFbmNoise21(vec2 p, float strength, float period) {
-    return fbm21(mod(p, period), strength);
+    // return fbm21(mod(p, period), strength);
+    return converter(fbm21(mod(p, period), strength));
 }
 
 /**
@@ -253,7 +259,7 @@ void main(){
     // float b = periodicFbmNoise21(pos2 + sin(u_time * 1.3) * 0.3, 0.2 + sin(u_time * 0.4) * 3.3, PI);
 
     float a = periodicFbmNoise21(pos, 1.0 + sin(u_time * 1.7) * 1.5, PI);
-    float b = periodicFbmNoise21(pos2 + sin(u_time * 1.3) * 0.3, 0.2 + sin(u_time * 0.4) * 3.3, PI);
+    float b = periodicFbmNoise21(pos2 + sin(u_time * 1.3) * 0.3, 0.2 + sin(u_time * 0.4) * 0.3, PI);
 
     // 時間変化はするけど周期性失われたできたノイズに
     // periodicWarpNoise21の中で時間変化させればうまくいきそう
