@@ -176,7 +176,9 @@ float warp21(vec2 p, float g){
     return val;
 }
 
-float converter(float v){
+// ソラリゼーション、入れるだけで模様の変化の幅が広がる、お気に入り
+// ソラリゼーションは写真の現像技術が元で露光をある程度過多にすることで白と黒を反転させる
+float solarisation(float v){
     return 0.5 * sin(4.0 * PI * v + u_time) + 0.5;
 }
 
@@ -185,13 +187,13 @@ float periodicWarpNoise21(vec2 p, float strength, float period) {
     // return warp21(vec2(mod(p.x, period), p.y), strength);
     // 普通のやつ
     // return warp21(mod(p, period), strength);
-    return converter(warp21(mod(p, period), strength));
+    return solarisation(warp21(mod(p, period), strength));
 }
 
 // ドメインワーピングじゃなくてfBMを使った
 float periodicFbmNoise21(vec2 p, float strength, float period) {
     // return fbm21(mod(p, period), strength);
-    return converter(fbm21(mod(p, period), strength));
+    return solarisation(fbm21(mod(p, period), strength));
 }
 
 /**
