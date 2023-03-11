@@ -8,10 +8,43 @@ int channel;
 const float PI = 3.1415926;
 const float TAU = 6.2831853;
 
+vec2 rot(float r){float c=cos(r);float s=sin(r);return mat2(c,-s,s,c);}
+
+vec3 chromaKeyBlend(vec3 target, vec3 chromaKey, vec3 background) {
+    vec3 blended = target == chromaKey ? background : target;
+    return blended;
+}
+
+float createTriangle(vec2 v, vec2 p, vec2 q, vec2 r) {
+    // 対象の点が三角形の内側にあるかどうかを計算する
+    // 三角形を形作る三つの点と対象の点との外積をそれぞれ計算して回転方向を計算する
+    // 三つの外積の回転方向が全て同じなら、対象の点は三角形の内側にあることになる
+    vec3 pv = vec3(v - p, 0.0);
+    vec3 pq = vec3(q - p, 0.0);
+
+    vec3 qv = vec3(v - q, 0.0);
+    vec3 qr = vec3(r - q, 0.0);
+
+    vec3 rv = vec3(v - r, 0.0);
+    vec3 rp = vec3(p - r, 0.0);
+
+    vec3 a = cross(pv, pq);
+    vec3 b = cross(qv, qr);
+    vec3 c = cross(rv, rp);
+
+    float dot_1 = dot(a, b);
+    float dot_2 = dot(a, c);
+
+    return (dot_1 > 0.0 && dot_2 > 0.0) ? 1.0 : 0.0;
+}
 //start hash
 void main() {
 	vec2 p = (gl_FragCoord.xy * 2.0 - u_resolution) /
 	min(u_resolution.x, u_resolution.y);
+
+	// 三角形
+    float a = createTriangle(p, vec2(-0.5, -0.5), vec2(0.0, 0.5), vec2(0.5, -0.5));
+	a = rot(a);
 
 	// 折りたたみ
 	// float c = cos(u_time), s = sin(u_time);
@@ -31,5 +64,8 @@ void main() {
 	// オリジナルな絵
 	vec2 axis = 1.0 - smoothstep(0.01, 0.02, abs(p));
 	vec2 color = mix(p, vec2(1), axis.x + axis.y);
-	fragColor = vec4(color, 1.0, 1.0);
+
+	vec3 triangle = chromaKeyBlend(vec3(a), vec3(1.0), vec3(color, 1.0));
+	// fragColor = vec4(color, 1.0, 1.0);
+	fragColor = vec4(triangle, 1.0);
 }
