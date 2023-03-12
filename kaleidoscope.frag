@@ -8,7 +8,12 @@ int channel;
 const float PI = 3.1415926;
 const float TAU = 6.2831853;
 
-vec2 rot(float r){float c=cos(r);float s=sin(r);return mat2(c,-s,s,c);}
+float[4] rot(float r){
+	float c=cos(r);
+	float s=sin(r);
+	float[4] res = float[](c,-s,s,c);
+	return res;
+}
 
 vec3 chromaKeyBlend(vec3 target, vec3 chromaKey, vec3 background) {
     vec3 blended = target == chromaKey ? background : target;
@@ -44,7 +49,8 @@ void main() {
 
 	// 三角形
     float a = createTriangle(p, vec2(-0.5, -0.5), vec2(0.0, 0.5), vec2(0.5, -0.5));
-	a = rot(a);
+	// TODO: 回転させたい
+	// a = rot(a);
 
 	// 折りたたみ
 	// float c = cos(u_time), s = sin(u_time);
