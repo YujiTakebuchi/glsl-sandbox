@@ -48,7 +48,11 @@ void main() {
 	min(u_resolution.x, u_resolution.y);
 
 	// 三角形
-    float a = createTriangle(p, vec2(-0.5, -0.5), vec2(0.0, 0.5), vec2(0.5, -0.5));
+    // float a = createTriangle(p, vec2(-0.5, -0.5), vec2(0.0, 0.5), vec2(0.5, -0.5));
+
+	// 全く意図的でない、三角形が浮かび上がってくる感じかっこいい
+	p = vec2(createTriangle(p, vec2(-0.5, -0.5), vec2(0.0, 0.5), vec2(0.5, -0.5)));
+
 	// TODO: 回転させたい
 	// a = rot(a);
 
@@ -71,7 +75,10 @@ void main() {
 	vec2 axis = 1.0 - smoothstep(0.01, 0.02, abs(p));
 	vec2 color = mix(p, vec2(1), axis.x + axis.y);
 
-	vec3 triangle = chromaKeyBlend(vec3(a), vec3(1.0), vec3(color, 1.0));
+	// vec3 triangle = chromaKeyBlend(vec3(a), vec3(1.0), vec3(color, 1.0));
+
+	// 全く意図的でない、三角形が浮かび上がってくる感じかっこいい
+	vec3 triangle = chromaKeyBlend(vec3(p.x), vec3(1.0), vec3(color, 1.0));
 	// fragColor = vec4(color, 1.0, 1.0);
 	fragColor = vec4(triangle, 1.0);
 }
