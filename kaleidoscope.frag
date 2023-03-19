@@ -42,6 +42,16 @@ float createTriangle(vec2 v, vec2 p, vec2 q, vec2 r) {
 
     return (dot_1 > 0.0 && dot_2 > 0.0) ? 1.0 : 0.0;
 }
+
+vec2 fold(vec2 p, float n) {
+	for (float i = 1.0; i <= n; ++i) {
+		p = abs(p * 1.5) - 1.0;
+		float a = u_time * i * .2;
+		float c = cos(a), s = sin(a);
+		p *= mat2(c, s, -s, c);
+	}
+	return p;
+}
 //start hash
 void main() {
 	vec2 p = (gl_FragCoord.xy * 2.0 - u_resolution) /
@@ -64,12 +74,7 @@ void main() {
 	// p = abs(p * 1.5) - 1.0;
 	// p *= mat2(c, s, -s, c);
 
-	for (float i = 1.0; i <= 4.0; ++i) {
-		p = abs(p * 1.5) - 1.0;
-		float a = u_time * i * .2;
-		float c = cos(a), s = sin(a);
-		p *= mat2(c, s, -s, c);
-	}
+	p = fold(p, 4.0);
 
 	// オリジナルな絵
 	vec2 axis = 1.0 - smoothstep(0.01, 0.02, abs(p));
