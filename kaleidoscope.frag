@@ -64,9 +64,9 @@ void main() {
 	// p = abs(p * 1.5) - 1.0;
 	// p *= mat2(c, s, -s, c);
 
-	for (int i = 1; i <= 4; ++i) {
+	for (float i = 1.0; i <= 4.0; ++i) {
 		p = abs(p * 1.5) - 1.0;
-		float a = u_time * float(i) * .2;
+		float a = u_time * i * .2;
 		float c = cos(a), s = sin(a);
 		p *= mat2(c, s, -s, c);
 	}
