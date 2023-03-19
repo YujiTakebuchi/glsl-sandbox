@@ -45,8 +45,15 @@ float createTriangle(vec2 v, vec2 p, vec2 q, vec2 r) {
 
 vec2 fold(vec2 p, float n) {
 	for (float i = 1.0; i <= n; ++i) {
+		p = abs(p);
+	}
+	return p;
+}
+
+vec2 foldRot(vec2 p, float n, float speed) {
+	for (float i = 1.0; i <= n; ++i) {
 		p = abs(p * 1.5) - 1.0;
-		float a = u_time * i * .2;
+		float a = u_time * i * speed;
 		float c = cos(a), s = sin(a);
 		p *= mat2(c, s, -s, c);
 	}
@@ -58,7 +65,7 @@ void main() {
 	min(u_resolution.x, u_resolution.y);
 
 	// 三角形
-    float a = createTriangle(p, vec2(-0.5, -0.5), vec2(0.0, 0.5), vec2(0.5, -0.5));
+    // float a = createTriangle(p, vec2(0.0, 0.0), vec2(0.5, 1.0), vec2(1.0, 0.0));
 
 	// 全く意図的でない、三角形が浮かび上がってくる感じかっこいい
 	// p = vec2(createTriangle(p, vec2(-0.5, -0.5), vec2(0.0, 0.5), vec2(0.5, -0.5)));
@@ -74,17 +81,21 @@ void main() {
 	// p = abs(p * 1.5) - 1.0;
 	// p *= mat2(c, s, -s, c);
 
-	p = fold(p, 4.0);
+	p = foldRot(p, 15.4, .05);
+    // float a = createTriangle(p, vec2(0.0, 0.0), vec2(0.5, 1.0), vec2(1.0, 0.0));
+	// p *= a;
+	// p = fold(p, 1.0);
 
 	// オリジナルな絵
 	vec2 axis = 1.0 - smoothstep(0.01, 0.02, abs(p));
 	vec2 color = mix(p, vec2(1), axis.x + axis.y);
 
-	vec3 triangle = chromaKeyBlend(vec3(a), vec3(1.0), vec3(color, 1.0));
+	// vec3 triangle = chromaKeyBlend(vec3(a), vec3(1.0), vec3(color, 1.0));
 
 	// 全く意図的でない、三角形が浮かび上がってくる感じかっこいい
 	// vec3 triangle = chromaKeyBlend(vec3(p.x), vec3(1.0), vec3(color, 1.0));
 
-	// fragColor = vec4(color, 1.0, 1.0);
-	fragColor = vec4(triangle, 1.0);
+	// fragColor = vec4(p, 0.0, 1.0);
+	fragColor = vec4(color, 1.0, 1.0);
+	// fragColor = vec4(triangle, 1.0);
 }
