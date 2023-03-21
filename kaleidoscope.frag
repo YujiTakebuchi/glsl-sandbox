@@ -82,8 +82,8 @@ void main() {
 	// p *= mat2(c, s, -s, c);
 
 	p = foldRot(p, 9.4, .05);
-    float a = createTriangle(p, vec2(0.0, 0.0), vec2(0.5, 1.0), vec2(1.0, 0.0));
-	p *= a;
+    // float a = createTriangle(p, vec2(0.0, 0.0), vec2(0.5, 1.0), vec2(1.0, 0.0));
+	// p *= a;
 	// p = fold(p, 1.0);
 
 	// オリジナルな絵
@@ -95,7 +95,7 @@ void main() {
 	// 全く意図的でない、三角形が浮かび上がってくる感じかっこいい
 	// vec3 triangle = chromaKeyBlend(vec3(p.x), vec3(1.0), vec3(color, 1.0));
 
-	fragColor = vec4(p, 0.0, 1.0);
+	fragColor = vec4(abs(p), 0.0, 1.0);
 	// fragColor = vec4(color, 1.0, 1.0);
 	// fragColor = vec4(triangle, 1.0);
 }
