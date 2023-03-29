@@ -88,7 +88,7 @@ void main() {
 
 	// オリジナルな絵
 	// vec2 axis = 1.0 - smoothstep(0.01, 0.02, abs(p));
-	// vec2 color = mix(p, vec2(1), axis.x + axis.y);
+	// vec2 color = mix(p, vec2(1), axis.x + axis.y);d
 
 	// vec3 triangle = chromaKeyBlend(vec3(a), vec3(1.0), vec3(color, 1.0));
 
