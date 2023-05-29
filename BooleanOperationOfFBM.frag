@@ -104,9 +104,12 @@ float fbm21(vec2 p, float g){
     return 0.5 * val + 0.5;
 }
 float base21(vec2 p){
-    return mod(u_time, 20.0) < 10.0 ?
-    fbm21(p, 0.5) : 
-    pnoise21(p);
+    return fbm21(p, sin(u_time) * 0.5);
+
+    // fbmとpnoiseを時間ごとに切り替え
+    // return mod(u_time, 20.0) < 10.0 ?
+    // fbm21(p, sin(u_time)) : 
+    // pnoise21(p);
 }
 float warp21(vec2 p, float g){
     float val = 0.0;
@@ -119,7 +122,10 @@ float warp21(vec2 p, float g){
 void main(){
     vec2 pos = gl_FragCoord.xy/min(u_resolution.x, u_resolution.y);
     channel = int(2.0 * gl_FragCoord.x / u_resolution.x);
-    pos = 10.0 * pos + u_time;
+    // pos = 10.0 * pos + u_time;
+
+    // fbmの描画エリアを時間変化
+    pos = 500.0 * sin(u_time * 0.04) * pos + u_time;
     vec2 f = vec2(warp21(pos, 1.0), warp21(pos + 10.0, 1.0));
     f -= 0.5;
     vec4 x;
