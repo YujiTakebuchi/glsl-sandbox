@@ -61,7 +61,7 @@ vec2 foldRot(vec2 p, float n, float speed) {
 }
 //start hash
 void main() {
-	float magnification = 0.1;
+	float magnification = .8;
 	vec2 p = (gl_FragCoord.xy * (magnification * 2.0) - u_resolution * (magnification * 1.0)) /
 	min(u_resolution.x, u_resolution.y);
 
