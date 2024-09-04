@@ -84,8 +84,8 @@ void main() {
 
 	p = foldRot(p, 9.4, .05);
     float a = createTriangle(p, vec2(0.0, 0.0), vec2(0.5, 1.0), vec2(1.0, 0.0));
-	// p *= a;
-	p = fold(p, 1.0);
+	p *= a;
+	// p = fold(p, 1.0);
 
 	// オリジナルな絵
 	// vec2 axis = 1.0 - smoothstep(0.01, 0.02, abs(p));
