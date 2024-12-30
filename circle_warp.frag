@@ -10,23 +10,8 @@ const float PI = 3.1415926;
 float atan2(float y, float x){
     return x == 0.0 ? sign(y) * PI / 2.0 : atan(y, x);
 }
-
 vec2 xy2pol(vec2 xy){
     return vec2(atan2(xy.x, xy.y), length(xy));
-}
-
-vec2 fold(vec2 p, float n) {
-  for (float i = 1.0; i <= n; ++i) {
-    p = abs(p);
-  }
-  return p;
-}
-
-vec2 foldNest(vec2 p, float n) {
-  for (float i = 1.0; i <= n; ++i) {
-    p = fold(p, n);
-  }
-  return p;
 }
 
 uvec3 k = uvec3(0x456789abu, 0x6789ab45u, 0x89ab4567u);
@@ -98,30 +83,23 @@ float warp21(vec2 p, float g){
     return val;
 }
 
-vec2 foldRot(vec2 p, float n, float speed) {
-	for (float i = 1.0; i <= n; ++i) {
-		p = abs(p * 1.5) - 1.0;
-		float a = u_time * i * speed;
-		float c = cos(a), s = sin(a);
-		p *= mat2(c, s, -s, c);
-	}
-	return p;
-}
 
 void main() {
   vec2 pos = gl_FragCoord.xy / u_resolution;
 
-  // float n = 1.0;
   float uns_time = (sin(u_time) + 1.0) * 0.5;
-  float n = uns_time * 13.0;
-  pos = 3.0 * pos.xy - vec2(3.0 / 2.0);
-  pos = foldRot(pos, n, 0.4);
+  float n = uns_time * 5.0;
+  float r = warp21(pos, n * PI) * n;
+  float b = smoothstep(0.5, 0.75, warp21(pos, n * PI) * n);
 
   // 中心に持ってってる
   pos = 2.0 * pos.xy - vec2(1.0);
   // 極座標変換
   pos = xy2pol(pos);
+  pos *= 5.0;
 
-  fragColor.rgb = vec3(warp21(pos, 0.02 * PI), 3.0 - pos.y, warp21(pos, 1.02 * PI));
+
+  fragColor.rgb = vec3(r, (1.2 * n + (sin(u_time * 3.0) + 1.0) * ((cos(u_time * 2.0) + 1.0) * 2.0)) - pos.y, b);
+  // fragColor.rgb = vec3(warp21(vec2(pos.x, pos.y * n), 0.1 * PI), 3.0 - pos.y, warp21(vec2(pos.x, pos.y * n * 0.1), 0.1 * PI));
   fragColor.a = 1.0;
 }
