@@ -169,9 +169,10 @@ void main() {
 
   float num = 4.0;
   uv = vec2(num / PI, num) * uv + u_time;
-  float pattern = vnoise21(uv * 14.0);
+  // float pattern = vnoise21(uv * 14.0);
+  float pattern = periodicNoise21(uv * 18.0, num * 4.0);
   uv *= num;
-  float curv = sin(uv.y - (uv.x * PI * 0.0628));
+  float curv = sin(uv.y - (uv.x * PI * 0.062779));
   pattern = smoothstep(0.5, 0.75, pattern) * curv;
   uv *= 1.0 / num;
   bg = vec4(pattern, curv, pattern, 1.0);
